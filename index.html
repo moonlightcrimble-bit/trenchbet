@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TRENCHBET</title>
-
-  <link rel="icon" type="image/png" href="trenchbet.png">
-
-  
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,10 +18,7 @@
       padding: 40px 20px;
       font-family: 'Press Start 2P', monospace;
     }
-    .logo {
-      font-size: 52px;
-      letter-spacing: 4px;
-    }
+    .logo { font-size: 52px; letter-spacing: 4px; }
     .logo .trench { color: #ffffff; }
     .logo .bet { color: #8b2be2; }
     .timer {
@@ -41,11 +34,7 @@
       align-items: center;
       gap: 14px;
     }
-    .ca-label {
-      font-size: 10px;
-      color: #9b3df0aa;
-      letter-spacing: 2px;
-    }
+    .ca-label { font-size: 10px; color: #9b3df0aa; letter-spacing: 2px; }
     .ca-box {
       display: flex;
       align-items: center;
@@ -84,11 +73,7 @@
       align-items: center;
       gap: 8px;
     }
-    .footer a {
-      color: #9b3df0aa;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
+    .footer a { color: #9b3df0aa; text-decoration: none; transition: color 0.2s; }
     .footer a:hover { color: #b060ff; }
     .x-icon { width: 13px; height: 13px; fill: #9b3df0aa; vertical-align: middle; }
   </style>
@@ -99,7 +84,7 @@
     <span class="trench">TRENCH</span><span class="bet">BET</span>
   </div>
 
-  <div class="timer" id="timer">00:00:00:00</div>
+  <div class="timer" id="timer">07:00:00:00</div>
 
   <div class="ca-wrapper">
     <div class="ca-label">CA:</div>
@@ -113,48 +98,47 @@
     <svg class="x-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
     </svg>
-    <a href="https://x.com/trenchbetdotxyz" target="_blank" rel="noopener">Follow @trenchbetdotxyz</a> for updates
+    <a href="https://x.com/trenchbetdotxyz" target="_blank" rel="noopener">Follow @trenchbetdotxyz for updates</a>
   </div>
 
   <script>
-    // ── TIMER ──────────────────────────────────────────────
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-    const KEY = 'tb_timer_7d_v1';
-    let endTime;
+    const STORAGE_KEY = 'trenchbet_end_time';
 
-    try {
-      const stored = localStorage.getItem(KEY);
-      if (stored) {
-        endTime = parseInt(stored, 10);
-        if (isNaN(endTime) || endTime < Date.now()) throw new Error('expired');
-      } else throw new Error('init');
-    } catch (e) {
+    // On first visit: store the end time. On every visit after: reuse it.
+    let endTime = parseInt(localStorage.getItem(STORAGE_KEY));
+    if (!endTime || isNaN(endTime)) {
       endTime = Date.now() + SEVEN_DAYS_MS;
-      try { localStorage.setItem(KEY, endTime); } catch (e2) {}
+      localStorage.setItem(STORAGE_KEY, endTime);
     }
 
-    function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+    function pad(n) {
+      return String(Math.max(0, Math.floor(n))).padStart(2, '0');
+    }
 
     function tick() {
-      const remaining = endTime - Date.now();
+      const now = Date.now();
+      const remaining = endTime - now;
       const el = document.getElementById('timer');
+
       if (remaining <= 0) {
         el.textContent = '00:00:00:00';
         return;
       }
-      const d = Math.floor(remaining / 86400000);
-      const h = Math.floor((remaining % 86400000) / 3600000);
-      const m = Math.floor((remaining % 3600000) / 60000);
-      const s = Math.floor((remaining % 60000) / 1000);
-      el.textContent = pad(d) + ':' + pad(h) + ':' + pad(m) + ':' + pad(s);
+
+      const days    = Math.floor(remaining / (1000 * 60 * 60 * 24));
+      const hours   = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+      el.textContent = pad(days) + ':' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
     }
 
     tick();
     setInterval(tick, 1000);
 
-    // ── COPY CA ────────────────────────────────────────────
     function copyCA() {
-      const ca = document.getElementById('ca-address').textContent;
+      const ca = document.getElementById('ca-address').textContent.trim();
       navigator.clipboard.writeText(ca).then(() => {
         const btn = document.getElementById('copy-btn');
         btn.textContent = 'COPIED!';

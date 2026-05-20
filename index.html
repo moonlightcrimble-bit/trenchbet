@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRENCHBET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 52px;
+      padding: 40px 20px;
+    }
+    .logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 52px;
+      letter-spacing: 4px;
+    }
+    .logo .trench { color: #ffffff; }
+    .logo .bet { color: #8b2be2; }
+    .timer {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 40px;
+      color: #8b2be2;
+      letter-spacing: 2px;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 18px #7b1fd688, 0 0 4px #7b1fd6aa;
+    }
+    .footer {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: #6a1ab077;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer a {
+      color: #9b3df0aa;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer a:hover { color: #b060ff; }
+    .x-icon { width: 13px; height: 13px; fill: #9b3df0aa; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <span class="trench">TRENCH</span><span class="bet">BET</span>
+  </div>
+
+  <div class="timer" id="timer">00:00:00:00</div>
+
+  <div class="footer">
+    <svg class="x-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+    </svg>
+    <a href="https://x.com/trenchgrid" target="_blank" rel="noopener">Follow @trenchgrid for updates</a>
+  </div>
+
+  <script>
+    const SIX_DAYS_MS = 6 * 24 * 60 * 60 * 1000;
+    const KEY = 'tb_timer_end_v2';
+    let endTime;
+
+    try {
+      const stored = localStorage.getItem(KEY);
+      if (stored) {
+        endTime = parseInt(stored, 10);
+        if (isNaN(endTime) || endTime < Date.now()) throw new Error('reset');
+      } else throw new Error('init');
+    } catch (e) {
+      endTime = Date.now() + SIX_DAYS_MS;
+      try { localStorage.setItem(KEY, endTime); } catch (e2) {}
+    }
+
+    function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+    function tick() {
+      const remaining = endTime - Date.now();
+      if (remaining <= 0) {
+        document.getElementById('timer').textContent = '00:00:00:00';
+        return;
+      }
+      const d = Math.floor(remaining / 86400000);
+      const h = Math.floor((remaining % 86400000) / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      document.getElementById('timer').textContent = pad(d) + ':' + pad(h) + ':' + pad(m) + ':' + pad(s);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
